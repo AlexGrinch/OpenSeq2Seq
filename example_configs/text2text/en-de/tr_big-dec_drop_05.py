@@ -27,11 +27,11 @@ base_params = {
   "num_gpus": 8, # when using Horovod we set number of workers with params to mpirun
   "batch_size_per_gpu": 128,  #256,  # this size is in sentence pairs, reduce it if you get OOM
   "max_steps": 300000,
-  "save_summaries_steps": 100,
+  "save_summaries_steps": 10000,
   "print_loss_steps": 100,
-  "print_samples_steps": 100,
-  "eval_steps": 4001,
-  "save_checkpoint_steps": 299998,
+  "print_samples_steps": 10000,
+  "eval_steps": 10000,
+  "save_checkpoint_steps": 49999,
   "logdir": "/result/tr_big-dec_drop_05",
   #"dtype": tf.float32, # to enable mixed precision, comment this line and uncomment two below lines
   "dtype": "mixed",
