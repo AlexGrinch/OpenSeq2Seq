@@ -37,6 +37,8 @@ class TransformerEncoder(Encoder):
         "relu_dropout": float,
         "layer_postprocess_dropout": float,
         "remove_padding": bool,
+        'drop_block_prob': float,
+        'drop_block_number': int,
     })
 
   @staticmethod
@@ -58,7 +60,7 @@ class TransformerEncoder(Encoder):
         'norm_params': dict,
     })
 
-  def __init__(self, params, model, name="transformer_encoder", mode='train' ):
+  def __init__(self, params, model, name="transformer_encoder", mode="train"):
     super(TransformerEncoder, self).__init__(
         params, model, name=name, mode=mode,
     )
@@ -76,6 +78,7 @@ class TransformerEncoder(Encoder):
 
 
   def _call(self, encoder_inputs, attention_bias, inputs_padding):
+    block_inputs = encoder_inputs
     for n, layer in enumerate(self.layers):
       # Run inputs through the sublayers.
       self_attention_layer = layer[0]
@@ -83,11 +86,22 @@ class TransformerEncoder(Encoder):
 
       with tf.variable_scope("layer_%d" % n):
         with tf.variable_scope("self_attention"):
-          encoder_inputs = self_attention_layer(encoder_inputs, attention_bias)
+          block_outputs = self_attention_layer(block_inputs, attention_bias)
         with tf.variable_scope("ffn"):
-          encoder_inputs = feed_forward_network(encoder_inputs, inputs_padding)
+          block_outputs = feed_forward_network(block_outputs, inputs_padding)
 
-    return self.output_normalization(encoder_inputs)
+      if self.mode == "train":
+        block_outputs = tf.cond(
+          tf.random_uniform(shape=[]) < self.params["drop_block_prob"],
+          lambda: block_inputs,
+          lambda: block_outputs
+        )
+      elif self.params["drop_block_number"] == n:
+        block_outputs = block_inputs
+
+      block_inputs = block_outputs
+
+    return self.output_normalization(block_outputs)
 
   def _encode(self, input_dict):
     training = (self.mode == "train")
