@@ -31,7 +31,7 @@ base_params = {
   "print_loss_steps": 100,
   "print_samples_steps": 10000,
   "eval_steps": 10000,
-  "save_checkpoint_steps": 100000,
+  "save_checkpoint_steps": 50000,
   "logdir": "/result/tr_big-enc_drop_075-dec_drop_075",
   #"dtype": tf.float32, # to enable mixed precision, comment this line and uncomment two below lines
   "dtype": "mixed",
