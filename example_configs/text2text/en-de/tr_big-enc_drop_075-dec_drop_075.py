@@ -24,14 +24,14 @@ data_root = "/data/wmt16-ende-sp/" #"../wmt16/"
 
 base_params = {
   "use_horovod": True,
-  "num_gpus": 8, # when using Horovod we set number of workers with params to mpirun
+  "num_gpus": 7, # when using Horovod we set number of workers with params to mpirun
   "batch_size_per_gpu": 128,  #256,  # this size is in sentence pairs, reduce it if you get OOM
-  "max_steps": 300000,
+  "max_steps": 1000000,
   "save_summaries_steps": 10000,
   "print_loss_steps": 100,
   "print_samples_steps": 10000,
   "eval_steps": 10000,
-  "save_checkpoint_steps": 49999,
+  "save_checkpoint_steps": 100000,
   "logdir": "/result/tr_big-enc_drop_075-dec_drop_075",
   #"dtype": tf.float32, # to enable mixed precision, comment this line and uncomment two below lines
   "dtype": "mixed",
