@@ -45,7 +45,8 @@ def conv_actv(layer_type, name, inputs, filters, kernel_size, activation_fn,
 def conv_bn_res_bn_actv(layer_type, name, inputs, res_inputs, filters,
                         kernel_size, activation_fn, strides, padding,
                         regularizer, training, data_format, bn_momentum,
-                        bn_epsilon, dilation=1):
+                        bn_epsilon, dilation=1, drop_block_prob=0.0, drop_block=False):
+  print ("ALERT", drop_block)
   layer = layers_dict[layer_type]
 
   if not isinstance(res_inputs, list):
@@ -120,6 +121,15 @@ def conv_bn_res_bn_actv(layer_type, name, inputs, res_inputs, filters,
     bn = tf.squeeze(bn, axis=axis)
 
   output = bn + res_aggregation
+  if training:
+    output = tf.cond(
+      tf.random_uniform(shape=[]) < drop_block_prob,
+        lambda: res_aggregation,
+        lambda: bn + res_aggregation
+      )
+  elif drop_block:
+    output = res_aggregation
+
   if activation_fn is not None:
     output = activation_fn(output)
   return output

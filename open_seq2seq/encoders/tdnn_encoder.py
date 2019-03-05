@@ -145,6 +145,7 @@ class TDNNEncoder(Encoder):
         if residual_dense:
           residual_aggregation.append(layer_res)
           layer_res = residual_aggregation
+
       for idx_layer in range(layer_repeat):
         if padding == "VALID":
           src_length = (src_length - kernel_size[0]) // strides[0] + 1
@@ -166,6 +167,8 @@ class TDNNEncoder(Encoder):
               regularizer=regularizer,
               training=training,
               data_format=data_format,
+              drop_block_prob=self.params['drop_block_prob'],
+              drop_block=(self.params['drop_block_number'] == idx_convnet),
               **normalization_params
           )
         else:
@@ -186,6 +189,11 @@ class TDNNEncoder(Encoder):
               **normalization_params
           )
         conv_feats = tf.nn.dropout(x=conv_feats, keep_prob=dropout_keep)
+
+
+
+
+
 
     outputs = conv_feats
 

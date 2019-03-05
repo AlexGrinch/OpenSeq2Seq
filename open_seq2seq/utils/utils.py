@@ -426,7 +426,8 @@ def check_params(config, required_dict, optional_dict):
 
   for pm in config:
     if pm not in required_dict and pm not in optional_dict:
-      raise ValueError("Unknown parameter: {}".format(pm))
+      pass
+      #raise ValueError("Unknown parameter: {}".format(pm))
 
 
 def cast_types(input_dict, dtype):
