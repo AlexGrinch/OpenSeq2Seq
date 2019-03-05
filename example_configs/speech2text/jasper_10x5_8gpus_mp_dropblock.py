@@ -56,8 +56,8 @@ base_params = {
 
     "encoder": TDNNEncoder,
     "encoder_params": {
-        "drop_block_prob": 0.0,
-        "drop_block_number": 8,
+        "drop_block_prob": 0.02,
+        "drop_block_number": -1,
         "convnet_layers": [
             {
                 "type": "conv1d", "repeat": 1,
