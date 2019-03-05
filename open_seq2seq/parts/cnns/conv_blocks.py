@@ -46,7 +46,6 @@ def conv_bn_res_bn_actv(layer_type, name, inputs, res_inputs, filters,
                         kernel_size, activation_fn, strides, padding,
                         regularizer, training, data_format, bn_momentum,
                         bn_epsilon, dilation=1, drop_block_prob=0.0, drop_block=False):
-  print ("ALERT", drop_block)
   layer = layers_dict[layer_type]
 
   if not isinstance(res_inputs, list):
