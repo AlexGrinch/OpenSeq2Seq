@@ -32,7 +32,7 @@ base_params = {
   "print_samples_steps": 10000,
   "eval_steps": 10000,
   "save_checkpoint_steps": 49999,
-  "logdir": "/result/tr_big-dec_drop_05",
+  "logdir": "/result/tr_big-enc_drop_025-dec_drop_025",
   #"dtype": tf.float32, # to enable mixed precision, comment this line and uncomment two below lines
   "dtype": "mixed",
   "loss_scaling": "Backoff",
@@ -62,7 +62,7 @@ base_params = {
     "layer_postprocess_dropout": 0.3,
     "pad_embeddings_2_eight": True,
     "remove_padding": True,
-    "drop_block_prob": 0.0,
+    "drop_block_prob": 0.025,
     "drop_block_number": -1,
   },
 
@@ -78,7 +78,7 @@ base_params = {
     "beam_size": 4,
     "alpha": 0.6,
     "extra_decode_length": 50,
-    "drop_block_prob": 0.05,
+    "drop_block_prob": 0.025,
     "drop_block_number": -1,
     "EOS_ID": EOS_ID,
     "GO_SYMBOL": SpecialTextTokens.S_ID.value,

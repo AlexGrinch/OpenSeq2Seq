@@ -24,15 +24,15 @@ data_root = "/data/wmt16-ende-sp/" #"../wmt16/"
 
 base_params = {
   "use_horovod": True,
-  "num_gpus": 8, # when using Horovod we set number of workers with params to mpirun
+  "num_gpus": 7, # when using Horovod we set number of workers with params to mpirun
   "batch_size_per_gpu": 128,  #256,  # this size is in sentence pairs, reduce it if you get OOM
-  "max_steps": 300000,
+  "max_steps": 1000000,
   "save_summaries_steps": 10000,
   "print_loss_steps": 100,
   "print_samples_steps": 10000,
   "eval_steps": 10000,
-  "save_checkpoint_steps": 49999,
-  "logdir": "/result/tr_big-dec_drop_05",
+  "save_checkpoint_steps": 50000,
+  "logdir": "/result/tr_big-enc_drop_075-dec_drop_075",
   #"dtype": tf.float32, # to enable mixed precision, comment this line and uncomment two below lines
   "dtype": "mixed",
   "loss_scaling": "Backoff",
@@ -62,7 +62,7 @@ base_params = {
     "layer_postprocess_dropout": 0.3,
     "pad_embeddings_2_eight": True,
     "remove_padding": True,
-    "drop_block_prob": 0.0,
+    "drop_block_prob": 0.075,
     "drop_block_number": -1,
   },
 
@@ -78,7 +78,7 @@ base_params = {
     "beam_size": 4,
     "alpha": 0.6,
     "extra_decode_length": 50,
-    "drop_block_prob": 0.05,
+    "drop_block_prob": 0.075,
     "drop_block_number": -1,
     "EOS_ID": EOS_ID,
     "GO_SYMBOL": SpecialTextTokens.S_ID.value,
