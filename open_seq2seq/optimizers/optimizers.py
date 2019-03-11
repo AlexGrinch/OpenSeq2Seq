@@ -32,6 +32,7 @@ from tensorflow.python.ops import control_flow_ops
 from open_seq2seq.utils.utils import mask_nans, check_params
 from .automatic_loss_scaler import AutomaticLossScaler
 from .mp_wrapper import MixedPrecisionOptimizerWrapper
+from .novograd import NovoGrad
 
 OPTIMIZER_CLS_NAMES = {
     "Adagrad": tf.train.AdagradOptimizer,
@@ -40,6 +41,7 @@ OPTIMIZER_CLS_NAMES = {
     "Momentum": tf.train.MomentumOptimizer,
     "RMSProp": tf.train.RMSPropOptimizer,
     "SGD": tf.train.GradientDescentOptimizer,
+    "NovoGrad": NovoGrad,
 }
 
 OPTIMIZER_SUMMARIES = [
@@ -129,7 +131,7 @@ def optimize_loss(loss,
         `compute_gradients` and `apply_gradients` functions.
     optimizer_params: parameters of the optimizer.
     var_list: List of trainable variables. Can be used to freeze
-        certain trainable variables by excluding them from this list. 
+        certain trainable variables by excluding them from this list.
         If set to None, all trainable variables will be optimized.
     dtype: model dtype (tf.float16, tf.float32 or "mixed").
     learning_rate_decay_fn: function, takes `global_step`
@@ -475,4 +477,3 @@ def _clip_by_global_norm(t_list, clip_norm, use_norm, name=None):
         for (c_v, t) in zip(values_clipped, t_list)]
 
   return list_clipped, use_norm
-  
