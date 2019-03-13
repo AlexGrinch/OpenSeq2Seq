@@ -11,7 +11,7 @@ from open_seq2seq.optimizers.novograd import NovoGrad
 ### If training with synthetic data, don't forget to add your synthetic csv
 ### to dataset files
 
-data_root = "/data/librispeech"
+data_root = "/data/librispeech/"
 base_model = Speech2Text
 
 base_params = {
