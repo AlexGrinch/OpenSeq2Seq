@@ -53,7 +53,7 @@ base_params = {
 
     "encoder": TDNNEncoder,
     "encoder_params": {
-        "drop_block_prob": 0,
+        "drop_block_prob": 0.0,
         "drop_block_index": -1,
         "convnet_layers": [
             {
