@@ -27,15 +27,15 @@ class TDNNEncoder(Encoder):
         'normalization': [None, 'batch_norm', 'layer_norm', 'instance_norm'],
         'bn_momentum': float,
         'bn_epsilon': float,
+        'use_conv_mask': bool,
+        'drop_block_prob': float,
+        'drop_block_index': int,
     })
 
   def __init__(self, params, model, name="w2l_encoder", mode='train'):
     """TDNN encoder constructor.
-
     See parent class for arguments description.
-
     Config parameters:
-
     * **dropout_keep_prop** (float) --- keep probability for dropout.
     * **convnet_layers** (list) --- list with the description of convolutional
       layers. For example::
@@ -65,7 +65,7 @@ class TDNNEncoder(Encoder):
     * **data_format** (string) --- could be either "channels_first" or
       "channels_last". Defaults to "channels_last".
     * **normalization** --- normalization to use. Accepts [None, 'batch_norm'].
-      Use None if you don't want to use normalization. Defaults to 'batch_norm'.     
+      Use None if you don't want to use normalization. Defaults to 'batch_norm'.
     * **bn_momentum** (float) --- momentum for batch norm. Defaults to 0.90.
     * **bn_epsilon** (float) --- epsilon for batch norm. Defaults to 1e-3.
     """
@@ -73,7 +73,6 @@ class TDNNEncoder(Encoder):
 
   def _encode(self, input_dict):
     """Creates TensorFlow graph for Wav2Letter like encoder.
-
     Args:
       input_dict (dict): input dictionary that has to contain
           the following fields::
@@ -83,10 +82,8 @@ class TDNNEncoder(Encoder):
                 src_length (shape=[batch_size])
               ]
             }
-
     Returns:
       dict: dictionary with the following tensors::
-
         {
           'outputs': hidden state, shape=[batch_size, sequence length, n_hidden]
           'src_length': tensor, shape=[batch_size]
@@ -101,7 +98,18 @@ class TDNNEncoder(Encoder):
     data_format = self.params.get('data_format', 'channels_last')
     normalization = self.params.get('normalization', 'batch_norm')
 
+    drop_block_prob = self.params.get('drop_block_prob', 0.0)
+    drop_block_index = self.params.get('drop_block_index', -1)
+
     normalization_params = {}
+
+    if self.params.get("use_conv_mask", False):
+      mask = tf.sequence_mask(
+          lengths=src_length, maxlen=tf.reduce_max(src_length),
+          dtype=source_sequence.dtype
+      )
+      mask = tf.expand_dims(mask, 2)
+
     if normalization is None:
       conv_block = conv_actv
     elif normalization == "batch_norm":
@@ -140,16 +148,37 @@ class TDNNEncoder(Encoder):
       residual = convnet_layers[idx_convnet].get('residual', False)
       residual_dense = convnet_layers[idx_convnet].get('residual_dense', False)
 
+
+      # For the first layer in the block, apply a mask
+      if self.params.get("use_conv_mask", False):
+        conv_feats = conv_feats * mask
+
       if residual:
         layer_res = conv_feats
         if residual_dense:
           residual_aggregation.append(layer_res)
           layer_res = residual_aggregation
+
       for idx_layer in range(layer_repeat):
+
         if padding == "VALID":
           src_length = (src_length - kernel_size[0]) // strides[0] + 1
         else:
           src_length = (src_length + strides[0] - 1) // strides[0]
+
+        # For all layers other than first layer, apply mask
+        if idx_layer > 0 and self.params.get("use_conv_mask", False):
+          conv_feats = conv_feats * mask
+
+        # Since we have a stride 2 layer, we need to update mask for future operations
+        if strides[0] > 1 and self.params.get("use_conv_mask", False):
+          mask = tf.sequence_mask(
+              lengths=src_length,
+              maxlen=tf.reduce_max(src_length),
+              dtype=conv_feats.dtype
+          )
+          mask = tf.expand_dims(mask, 2)
+
         if residual and idx_layer == layer_repeat - 1:
           conv_feats = conv_bn_res_bn_actv(
               layer_type=layer_type,
@@ -166,6 +195,8 @@ class TDNNEncoder(Encoder):
               regularizer=regularizer,
               training=training,
               data_format=data_format,
+              drop_block_prob=drop_block_prob,
+              drop_block=(drop_block_index == idx_convnet),
               **normalization_params
           )
         else:
@@ -185,6 +216,7 @@ class TDNNEncoder(Encoder):
               data_format=data_format,
               **normalization_params
           )
+
         conv_feats = tf.nn.dropout(x=conv_feats, keep_prob=dropout_keep)
 
     outputs = conv_feats
