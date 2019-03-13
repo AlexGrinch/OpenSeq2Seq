@@ -11,6 +11,7 @@ from open_seq2seq.optimizers.novograd import NovoGrad
 ### If training with synthetic data, don't forget to add your synthetic csv
 ### to dataset files
 
+data_root = "/data/librispeech"
 base_model = Speech2Text
 
 base_params = {
@@ -30,7 +31,7 @@ base_params = {
     "num_checkpoints": 5,
     "logdir": "../jasper/",
 
-    "optimizer": "NovoGrad",
+    "optimizer": NovoGrad,
     "optimizer_params": {
         "beta1": 0.95,
         "beta2": 0.98,
@@ -40,8 +41,7 @@ base_params = {
     },
     "lr_policy": poly_decay,
     "lr_policy_params": {
-        "learning_rate": 0.01,
-        "min_lr": 1e-5,
+        "learning_rate": 0.02,
         "power": 2.0,
     },
 
@@ -168,8 +168,8 @@ base_params = {
         "beta": 1.5,
 
         "decoder_library_path": "ctc_decoder_with_lm/libctc_decoder_with_kenlm.so",
-        "lm_path": "language_model/4-gram.binary",
-        "trie_path": "language_model/trie.binary",
+        "lm_path": data_root + "LM/librivox-lm3.binary",
+        "trie_path": data_root + "LM/librivox-lm3.trie",
         "alphabet_config_path": "open_seq2seq/test_utils/toy_speech_data/vocab.txt",
     },
     "loss": CTCLoss,
@@ -183,9 +183,9 @@ train_params = {
         "input_type": "logfbank",
         "vocab_file": "open_seq2seq/test_utils/toy_speech_data/vocab.txt",
         "dataset_files": [
-            "/data/librispeech/librivox-train-clean-100.csv",
-            "/data/librispeech/librivox-train-clean-360.csv",
-            "/data/librispeech/librivox-train-other-500.csv",
+            data_root + "librivox-train-clean-100.csv",
+            data_root + "librivox-train-clean-360.csv",
+            data_root + "librivox-train-other-500.csv",
             # Add synthetic csv here
         ],
         "syn_enable": False, # Change to True if using synthetic data
@@ -202,7 +202,7 @@ eval_params = {
         "input_type": "logfbank",
         "vocab_file": "open_seq2seq/test_utils/toy_speech_data/vocab.txt",
         "dataset_files": [
-            "/data/librispeech/librivox-dev-clean.csv",
+            data_root + "librivox-dev-clean.csv",
         ],
         "shuffle": False,
     },
@@ -215,7 +215,7 @@ infer_params = {
         "input_type": "logfbank",
         "vocab_file": "open_seq2seq/test_utils/toy_speech_data/vocab.txt",
         "dataset_files": [
-            "/data/librispeech/librivox-test-clean.csv",
+            data_root + "librivox-test-clean.csv",
         ],
         "shuffle": False,
     },
