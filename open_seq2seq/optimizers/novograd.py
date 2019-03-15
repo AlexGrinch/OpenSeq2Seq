@@ -114,8 +114,8 @@ class NovoGrad(MomentumOptimizer):
 
       grad = tf.cond(
         self._grads_ema[i] > self._epsilon,
-        grad / tf.sqrt(self._grads_ema[i] + self._epsilon),
-        grad)
+        lambda: grad / tf.sqrt(self._grads_ema[i] + self._epsilon),
+        lambda: grad)
       # weight decay
       if (self._wd > 0.):
         grad += (self._wd * var)
