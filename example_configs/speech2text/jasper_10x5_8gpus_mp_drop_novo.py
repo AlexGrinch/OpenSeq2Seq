@@ -87,7 +87,7 @@ base_params = {
                 "type": "conv1d", "repeat": 5,
                 "kernel_size": [13], "stride": [1],
                 "num_channels": 384, "padding": "SAME",
-                "dilation":[1], "dropout_keep_prob": 0.855,
+                "dilation":[1], "dropout_keep_prob": 0.85,
                 "residual": True
             },
             {
