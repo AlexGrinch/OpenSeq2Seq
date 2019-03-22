@@ -13,7 +13,7 @@ from open_seq2seq.parts.cnns.conv_blocks import conv_actv, conv_bn_actv,\
 
 class TDNNEncoder(Encoder):
   """General time delay neural network (TDNN) encoder. Fully convolutional model
-  """aa
+  """
 
   @staticmethod
   def get_required_params():
