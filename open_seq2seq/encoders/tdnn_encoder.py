@@ -148,7 +148,6 @@ class TDNNEncoder(Encoder):
       residual = convnet_layers[idx_convnet].get('residual', False)
       residual_dense = convnet_layers[idx_convnet].get('residual_dense', False)
 
-
       # For the first layer in the block, apply a mask
       if self.params.get("use_conv_mask", False):
         conv_feats = conv_feats * mask
