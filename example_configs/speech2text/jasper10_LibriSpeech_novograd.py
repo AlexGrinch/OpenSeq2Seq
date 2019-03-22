@@ -14,8 +14,8 @@ activation = tf.nn.relu
 
 residual = True
 residual_dense = True
-repeat_1 = 4
-repeat_2 = 4
+repeat_1 = 5
+repeat_2 = 5
 dropout_factor = 1.
 training_set = "libri"
 data_aug_enable = False
@@ -233,7 +233,7 @@ base_params = {
         "vocab_file": "open_seq2seq/test_utils/toy_speech_data/vocab.txt",
         "norm_per_feature": True,
         "window_type": "hamming",
-        "syn_enable": False,
+        "syn_enable": True,
         "syn_subdirs": ["1_50", "2_44", "3_47", "50", "46", "48"],
         "precompute_mel_basis": True,
         "sample_freq": 16000,
