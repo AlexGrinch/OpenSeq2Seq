@@ -112,7 +112,10 @@ class NovoGrad(MomentumOptimizer):
                   lambda: self._grads_ema[i]*self._beta2 + g_2*(1.-self._beta2)
                   )
 
-      grad *= 1.0 / tf.sqrt(self._grads_ema[i] + self._epsilon)
+      grad = tf.cond(
+        self._grads_ema[i] > self._epsilon,
+        lambda: grad / tf.sqrt(self._grads_ema[i] + self._epsilon),
+        lambda: grad)
       # weight decay
       if (self._wd > 0.):
         grad += (self._wd * var)
