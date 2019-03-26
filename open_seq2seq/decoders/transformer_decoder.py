@@ -60,6 +60,8 @@ class TransformerDecoder(Decoder):
         'PAD_SYMBOL': int,
         'END_SYMBOL': int,
         'norm_params': dict,
+        'drop_block_prob': float,
+        'drop_block_index': int,
     })
 
   def _cast_types(self, input_dict):
@@ -154,6 +156,7 @@ class TransformerDecoder(Decoder):
 
   def _call(self, decoder_inputs, encoder_outputs, decoder_self_attention_bias,
             attention_bias, cache=None):
+    block_inputs = decoder_inputs
     for n, layer in enumerate(self.layers):
       self_attention_layer = layer[0]
       enc_dec_attention_layer = layer[1]
@@ -167,17 +170,30 @@ class TransformerDecoder(Decoder):
           # TODO: Figure out why this is needed
           # decoder_self_attention_bias = tf.cast(x=decoder_self_attention_bias,
           #                                      dtype=decoder_inputs.dtype)
-          decoder_inputs = self_attention_layer(
-              decoder_inputs, decoder_self_attention_bias, cache=layer_cache,
+          block_outputs = self_attention_layer(
+              block_inputs, decoder_self_attention_bias, cache=layer_cache,
           )
         with tf.variable_scope("encdec_attention"):
-          decoder_inputs = enc_dec_attention_layer(
-              decoder_inputs, encoder_outputs, attention_bias,
+          block_outputs = enc_dec_attention_layer(
+              block_outputs, encoder_outputs, attention_bias,
           )
         with tf.variable_scope("ffn"):
-          decoder_inputs = feed_forward_network(decoder_inputs)
+          block_outputs = feed_forward_network(block_outputs)
 
-    return self.output_normalization(decoder_inputs)
+      if self.mode == "train":
+        block_outputs = tf.cond(
+          tf.random_uniform(shape=[]) < self.params["drop_block_prob"],
+          lambda: block_inputs,
+          lambda: block_outputs
+        )
+      elif self.params["drop_block_index"] == n:
+        block_outputs = block_inputs
+      else:
+        block_outputs = (1 - self.params["drop_block_prob"]) * block_outputs
+
+      block_inputs = block_outputs
+
+    return self.output_normalization(block_outputs)
 
   def decode_pass(self, targets, encoder_outputs, inputs_attention_bias):
     """Generate logits for each value in the target sequence.
