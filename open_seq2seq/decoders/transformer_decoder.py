@@ -189,7 +189,8 @@ class TransformerDecoder(Decoder):
       elif self.params["drop_block_index"] == n:
         block_outputs = block_inputs
       else:
-        block_outputs = (1 - self.params["drop_block_prob"]) * block_outputs
+        block_outputs = block_inputs + \
+          (1 - self.params["drop_block_prob"]) * (block_outputs - block_inputs)
 
       block_inputs = block_outputs
 
